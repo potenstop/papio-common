@@ -10,6 +10,7 @@
 import {Beans} from "../../core/Beans";
 import {StringUtil} from "../../util/StringUtil";
 import {MetaConstant} from "../../constants/MetaConstant";
+import "reflect-metadata";
 
 export function Bean(target: object, propertyKey: string): void ;
 export function Bean(target: string): CallableFunction;

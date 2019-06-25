@@ -31,6 +31,7 @@ export function AxisoRemote(target: Options | string): CallableFunction {
 class Options {
     public name?: string;
     public filepath: string;
+    public timeout?: number;
 }
 function exec(target: (new () => object), options: Options) {
     const ownMetadata = Reflect.getOwnMetadata(MetaConstant.REQUEST_MAPPING, target) || new Map<string, object>();
@@ -91,11 +92,15 @@ function exec(target: (new () => object), options: Options) {
                     url += v.path;
                 }
             }
+            let timeout = 0;
+            if (options.timeout !== undefined) {
+                timeout = options.timeout;
+            }
             target.prototype[k] = async function() {
                 const i = Math.floor((Math.random() * writeDataSources.length));
                 const dataSource = writeDataSources[i];
                 const connection = await dataSource.getConnection() as AxiosConnection;
-                return await connection.request(returnGenericsProperty[returnType], returnGenericsProperty,  url, v.method, 0, v.frequency);
+                return await connection.request(returnGenericsProperty[returnType], returnGenericsProperty,  url, v.method, timeout, v.frequency);
             };
         }
     } else {
