@@ -63,7 +63,7 @@ function exec(target: (new () => object), options: Options) {
             throw new Error("AxisoRemote write dataSource is empty");
         }
         for (const [k, v] of ownMetadata) {
-            const returnGenericsProperty = Reflect.getOwnMetadata(MetaConstant.BEAN_RETURN_GENERICS,  target.prototype, k);
+            const returnGenericsProperty = Reflect.getOwnMetadata(MetaConstant.BEAN_RETURN_GENERICS,  target.prototype, k) || new Map<string, new () => object>();
             if (!returnGenericsProperty) {
                 throw new Error(`rest class(${target.name}) function(${k}) not found @ReturnGenericsProperty`);
             }
@@ -100,7 +100,7 @@ function exec(target: (new () => object), options: Options) {
                 const i = Math.floor((Math.random() * writeDataSources.length));
                 const dataSource = writeDataSources[i];
                 const connection = await dataSource.getConnection() as AxiosConnection;
-                return await connection.request(returnGenericsProperty[returnType], returnGenericsProperty,  url, v.method, timeout, v.frequency);
+                return await connection.request(returnGenericsProperty.get(returnType), returnGenericsProperty,  url, v.method, timeout, v.frequency);
             };
         }
     } else {

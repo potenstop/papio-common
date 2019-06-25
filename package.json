@@ -1,6 +1,6 @@
 {
   "name": "papio-common",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "papio-common",
   "main": "lib/PapioCommon.js",
   "types": "lib/PapioCommon.d.ts",
