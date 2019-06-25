@@ -11,4 +11,6 @@ import {HttpRequestErrorEnum} from "../enums/HttpRequestErrorEnum";
 
 export class HttpRequestError extends Error {
     public code: HttpRequestErrorEnum;
+    public status: number;
+    public data: any;
 }
