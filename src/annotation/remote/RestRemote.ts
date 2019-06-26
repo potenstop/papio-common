@@ -15,6 +15,9 @@ import {Mappers} from "../../core/Mappers";
 import * as path from "path";
 import {Beans} from "../../core/Beans";
 import {RestDataSource} from "../../data/rest/RestDataSource";
+import {ControllerArgument} from "../../model/ControllerArgument";
+import {ControllerArgumentSourceEnum} from "../../enums/ControllerArgumentSourceEnum";
+import {JsonProtocol} from "../../protocol/JsonProtocol";
 export function RestRemote(target: string): CallableFunction;
 export function RestRemote(target: Options): CallableFunction;
 export function RestRemote(target: Options | string): CallableFunction {
@@ -31,6 +34,7 @@ export function RestRemote(target: Options | string): CallableFunction {
 class Options {
     public name?: string;
     public filepath: string;
+    public timeout?: number;
 }
 function exec(target: (new () => object), options: Options) {
     const ownMetadata = Reflect.getOwnMetadata(MetaConstant.REQUEST_MAPPING, target) || new Map<string, object>();
@@ -63,6 +67,8 @@ function exec(target: (new () => object), options: Options) {
         }
         for (const [k, v] of ownMetadata) {
             const returnGenericsProperty = Reflect.getOwnMetadata(MetaConstant.BEAN_RETURN_GENERICS,  target.prototype, k) || new Map<string, new () => object>();
+            const controllerArguments = Reflect.getOwnMetadata(MetaConstant.CONTROLLER_ARGUMENTS, target.prototype.constructor, k) || new Array<ControllerArgument>();
+
             if (!returnGenericsProperty) {
                 throw new Error(`rest class(${target.name}) function(${k}) not found @ReturnGenericsProperty`);
             }
@@ -91,11 +97,27 @@ function exec(target: (new () => object), options: Options) {
                     url += v.path;
                 }
             }
+            let timeout = 0;
+            if (options.timeout !== undefined) {
+                timeout = options.timeout;
+            }
             target.prototype[k] = async function() {
+                const params = {};
+                let body = {};
+                const headers = {};
+                controllerArguments.forEach(val => {
+                    if (val.source === ControllerArgumentSourceEnum.PARAMS) {
+                        params[val.outName] = arguments[val.index];
+                    } else if (val.source === ControllerArgumentSourceEnum.BODY) {
+                        body = JsonProtocol.toJson(arguments[val.index]);
+                    } else if (val.source === ControllerArgumentSourceEnum.HEADER) {
+                        headers[val.outName] = arguments[val.index];
+                    }
+                });
                 const i = Math.floor((Math.random() * writeDataSources.length));
                 const dataSource = writeDataSources[i];
                 const connection = await dataSource.getConnection() as RestConnection;
-                return await connection.request(returnGenericsProperty.get(returnType), returnGenericsProperty,  url, v.method, 0, v.frequency);
+                return await connection.request(returnGenericsProperty.get(returnType), returnGenericsProperty,  url, v.method, timeout, params, body, headers);
             };
         }
     } else {

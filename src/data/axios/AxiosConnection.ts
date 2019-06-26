@@ -70,8 +70,8 @@ export class AxiosConnection implements IConnection {
     public request<T>(result: new () => T, genericsProperty: Map<string, new () => object>, uri: string, method: RequestMethod, timeout: number): Promise<T>;
     public request<T>(result: new () => T, genericsProperty: Map<string, new () => object>, uri: string, method: RequestMethod, timeout: number, params: object): Promise<T>;
     public request<T>(result: new () => T, genericsProperty: Map<string, new () => object>, uri: string, method: RequestMethod, timeout: number, params: object, body: object): Promise<T>;
-    public request<T>(result: new () => T, genericsProperty: Map<string, new () => object>, uri: string, method: RequestMethod, timeout: number, params: object, body: object): Promise<T>;
-    public async request<T>(result: new () => T, genericsProperty: Map<string, new () => object>, uri: string, method?: RequestMethod, timeout?: number, params?: object, body?: object): Promise<T> {
+    public request<T>(result: new () => T, genericsProperty: Map<string, new () => object>, uri: string, method: RequestMethod, timeout: number, params: object, body: object, headers: object): Promise<T>;
+    public async request<T>(result: new () => T, genericsProperty: Map<string, new () => object>, uri: string, method?: RequestMethod, timeout?: number, params?: object, body?: object, headers?: object): Promise<T> {
         if (!method) {
             method = RequestMethod.GET;
         }
@@ -86,10 +86,16 @@ export class AxiosConnection implements IConnection {
                 params: params,
                 data: body,
                 timeout: timeout,
-                httpAgent: this.options.agent
+                httpAgent: this.options.agent,
+                headers: headers
             });
             if (response.status === 200) {
                 return JsonProtocol.jsonToBean(response.data, result, genericsProperty);
+            } else {
+                const error = new HttpRequestError();
+                error.code = HttpRequestErrorEnum.STATUS_ERROR;
+                error.message = 'status not equal to '+ response.status;
+                throw error;
             }
         } catch (e) {
             const error = new HttpRequestError();

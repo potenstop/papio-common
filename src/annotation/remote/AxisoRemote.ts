@@ -15,6 +15,9 @@ import {Mappers} from "../../core/Mappers";
 import * as path from "path";
 import {Beans} from "../../core/Beans";
 import {AxiosDataSource} from "../../data/axios/AxiosDataSource";
+import {ControllerArgument} from "../../model/ControllerArgument";
+import {ControllerArgumentSourceEnum} from "../../enums/ControllerArgumentSourceEnum";
+import {JsonProtocol} from "../../protocol/JsonProtocol";
 export function AxisoRemote(target: string): CallableFunction;
 export function AxisoRemote(target: Options): CallableFunction;
 export function AxisoRemote(target: Options | string): CallableFunction {
@@ -64,6 +67,8 @@ function exec(target: (new () => object), options: Options) {
         }
         for (const [k, v] of ownMetadata) {
             const returnGenericsProperty = Reflect.getOwnMetadata(MetaConstant.BEAN_RETURN_GENERICS,  target.prototype, k) || new Map<string, new () => object>();
+            const controllerArguments = Reflect.getOwnMetadata(MetaConstant.CONTROLLER_ARGUMENTS, target.prototype.constructor, k) || new Array<ControllerArgument>();
+
             if (!returnGenericsProperty) {
                 throw new Error(`rest class(${target.name}) function(${k}) not found @ReturnGenericsProperty`);
             }
@@ -97,10 +102,22 @@ function exec(target: (new () => object), options: Options) {
                 timeout = options.timeout;
             }
             target.prototype[k] = async function() {
+                const params = {};
+                let body = {};
+                const headers = {};
+                controllerArguments.forEach(val => {
+                    if (val.source === ControllerArgumentSourceEnum.PARAMS) {
+                        params[val.outName] = arguments[val.index];
+                    } else if (val.source === ControllerArgumentSourceEnum.BODY) {
+                        body = JsonProtocol.toJson(arguments[val.index]);
+                    } else if (val.source === ControllerArgumentSourceEnum.HEADER) {
+                        headers[val.outName] = arguments[val.index];
+                    }
+                });
                 const i = Math.floor((Math.random() * writeDataSources.length));
                 const dataSource = writeDataSources[i];
                 const connection = await dataSource.getConnection() as AxiosConnection;
-                return await connection.request(returnGenericsProperty.get(returnType), returnGenericsProperty,  url, v.method, timeout, v.frequency);
+                return await connection.request(returnGenericsProperty.get(returnType), returnGenericsProperty,  url, v.method, timeout, params, body, headers);
             };
         }
     } else {

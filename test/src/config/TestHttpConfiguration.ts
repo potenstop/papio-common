@@ -12,9 +12,9 @@ import {IDataSource} from "type-interface";
 
 
 @Configuration
-@MapperScan("@../test/src/dao/rest-test")
+@MapperScan("@../test/src/dao")
 //@MapperScan("@dao/rest-test")
-export class RestTestHttpConfiguration {
+export class TestHttpConfiguration {
     @Bean
     public restTestDataSourceMaster(): IDataSource {
         const httpDataSource = new AxiosDataSource();

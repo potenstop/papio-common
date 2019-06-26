@@ -203,14 +203,31 @@ export class JsonProtocol {
                     continue;
                 }
             }
-            if (JSHelperUtil.isClassType(typeName)) {
+            if (json[jsonKeyName] === undefined || json[jsonKeyName] === null) {
+                result[key] = null;
+            } else if (JSHelperUtil.isBaseType(typeName)) {
+                if (typeof json[jsonKeyName] === 'object') {
+                    if (JSHelperUtil.isStringType(typeName)) {
+                        result[key] = JSON.stringify(json[jsonKeyName]);
+                    } else {
+                        result[key] = null;
+                    }
+                } else {
+                    if (JSHelperUtil.isStringType(typeName)){
+                        result[key] = String(json[jsonKeyName]);
+                    } else if (JSHelperUtil.isNumberType(typeName)) {
+                        result[key] = Number(json[jsonKeyName]);
+                    } else if (JSHelperUtil.isBooleanType(typeName)) {
+                        result[key] = Boolean(json[jsonKeyName]);
+                    }
+                }
+            } else if (JSHelperUtil.isClassType(typeName)) {
                 result[key] = JsonProtocol.jsonToBean(json[jsonKeyName], typeName,  beanGenericsMap, genericsKey + "." + typeName.name);
             } else if (JSHelperUtil.isArrayType(typeName) || JSHelperUtil.isSetType(typeName)) {
                 // array set
                 result[key] = JsonProtocol.arrayToBeans(json[jsonKeyName], typeName, beanGenericsMap, genericsKey + "." + (JSHelperUtil.isArrayType(typeName) ? "Array" : "Set"));
             } else {
-                if (json[jsonKeyName] === undefined) { json[jsonKeyName] = null; }
-                result[key] = json[jsonKeyName];
+                // type error
             }
         }
         return result;

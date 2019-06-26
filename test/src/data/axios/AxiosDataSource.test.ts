@@ -7,16 +7,7 @@
  * @author yanshaowen
  * @date 2019/6/25 9:55
  */
-import {AxiosDataSource} from "../../../../src/data/axios/AxiosDataSource";
-import {AxiosConnection} from "../../../../src/data/axios/AxiosConnection";
 import {Property} from "../../../../src/annotation/bean/Property";
-import {RequestMethod} from "../../../../src/enums/RequestMethod";
-import {HttpData} from "../../../../src/annotation/data/HttpData";
-import {RequestMapping} from "../../../../src/annotation/mapping/RequestMapping";
-import {IDataSource} from "type-interface";
-import {Configuration} from "../../../../src/annotation/component/Configuration";
-import {MapperScan} from "../../../../src/annotation/component/MapperScan";
-import {Bean} from "../../../../src/annotation/initialize/Bean";
 
 class Standard<T> {
     @Property
@@ -34,9 +25,19 @@ class Member{
     @Property
     private memberId: number;
 }
+import "../../config/TestHttpConfiguration";
+import { MyAxiso } from "../../dao/axiso/MyAxiso";
+import {Body} from "../../model/Body";
 describe("http request", () => {
-    it("error", async () => {
-
+    it("suc", async () => {
+        let myAxiso = new MyAxiso();
+        const result = await myAxiso.getMemberInfo("123456");
+        console.log(result.data, typeof result.data)
+        let body = new Body();
+        body.setId(1)
+        body.setMemberName("11")
+        const result1 = await myAxiso.postTest(body);
+        console.log(result)
     })
 
 })

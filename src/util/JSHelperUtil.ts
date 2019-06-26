@@ -60,6 +60,15 @@ export class JSHelperUtil {
     public static isArrayType(type: any) {
         return type === Array;
     }
+    public static isNumberType(type: any) {
+        return type === Number;
+    }
+    public static isStringType(type: any) {
+        return type === String;
+    }
+    public static isBooleanType(type: any) {
+        return type === Boolean;
+    }
     /**
      * 方法描述 判断type是否为Set类型
      * @author yanshaowen
