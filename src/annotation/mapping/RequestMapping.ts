@@ -18,7 +18,6 @@ import {MetaConstant} from "../../constants/MetaConstant";
 export function RequestMapping(target: string): CallableFunction;
 // @RequestMapping({path: '/my',method: RequestMethod.GET}) 指定路由 方法为get
 export function RequestMapping(target: IOptions): CallableFunction;
-export function RequestMapping(target: IOptions): CallableFunction;
 
 // class的装饰器 无参数
 export function RequestMapping(target: (new () => object)): void;

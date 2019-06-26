@@ -18,6 +18,7 @@ import {
     RequestBody,
 } from "../../../../src/PapioCommon";
 import { Body} from "../../model/Body"
+import {PostMapping} from "../../../../src/annotation/mapping/PostMapping";
 class Standard<T> {
     @Property
     public code: string;
@@ -37,7 +38,7 @@ export class MyAxiso {
     public getMemberInfo(@RequestParam("uuid") id: string): Promise<Standard<String>> {
         return null;
     }
-    @RequestMapping({path: "visitor/login", method: RequestMethod.POST})
+    @PostMapping({path: "visitor/login"})
     @ReturnGenericsProperty(new Map<string, new () => object>().set("Standard", Standard).set("Standard.data", String))
     public postTest(@RequestBody body: Body): Promise<Standard<number>> {
         return null;

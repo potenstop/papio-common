@@ -21,6 +21,16 @@ export { RequestHeader } from "./annotation/request/RequestHeader";
 export { RequestParam } from "./annotation/request/RequestParam";
 export { ResponseBody } from "./annotation/response/ResponseBody";
 
+export { PostMapping } from "./annotation/mapping/PostMapping";
+export { GetMapping } from "./annotation/mapping/GetMapping";
+export { DeleteMapping } from "./annotation/mapping/DeleteMapping";
+export { HeadMapping } from "./annotation/mapping/HeadMapping";
+export { OptionsMapping } from "./annotation/mapping/OptionsMapping";
+export { PatchMapping } from "./annotation/mapping/PatchMapping";
+export { PutMapping } from "./annotation/mapping/PutMapping";
+export { TraceMapping } from "./annotation/mapping/TraceMapping";
+
+
 export { Max } from "./annotation/validation/Max";
 export { Min } from "./annotation/validation/Min";
 export { NotBank } from "./annotation/validation/NotBank";
