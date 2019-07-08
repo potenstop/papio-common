@@ -79,7 +79,7 @@ export * from "./converter/IConverter";
 export * from "./converter/DateTimeConverter";
 
 export { Beans } from "./core/Beans";
-export { Controllers } from "./core/Controllers";
+export { Controllers, Controller } from "./core/Controllers";
 export { Mappers } from "./core/Mappers";
 
 export { HttpRequestError } from "./error/HttpRequestError";
