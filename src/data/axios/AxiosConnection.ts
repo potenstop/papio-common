@@ -1,7 +1,6 @@
 import {RequestMethod} from "../../enums/RequestMethod";
 import {JSHelperUtil} from "../../util/JSHelperUtil";
 import {IConnection, ISavepoint} from "type-interface";
-import Axios from 'axios'
 import {JsonProtocol} from "../../protocol/JsonProtocol";
 import {HttpRequestError} from "../../error/HttpRequestError";
 import {HttpRequestErrorEnum} from "../../enums/HttpRequestErrorEnum";
@@ -79,6 +78,7 @@ export class AxiosConnection implements IConnection {
             timeout = 0;
         }
         try {
+            const Axios = require("axios");
             const response = await Axios.request({
                 url: uri,
                 baseURL: this.options.url,
