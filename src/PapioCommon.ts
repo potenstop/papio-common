@@ -54,6 +54,7 @@ export { StackAnalysisUtil } from "./util/StackAnalysisUtil";
 export { StringUtil } from "./util/StringUtil";
 export { ProcessUtil } from "./util/ProcessUtil";
 export { DateUtil } from "./util/DateUtil";
+export { FileUtil } from "./util/FileUtil";
 
 export *  from "./enums/RequestMethod";
 export *  from "./enums/RequestFrequency";
