@@ -19,7 +19,7 @@ class Bonus<T> {
     public id: T;
 }
 class MyBean {
-    @Property
+    @JsonProperty
     public inputName: string;
     @JsonProperty("id")
     public id: number;

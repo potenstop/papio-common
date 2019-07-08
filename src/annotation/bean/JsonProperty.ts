@@ -10,14 +10,17 @@
 import "reflect-metadata";
 import {MetaConstant} from "../../constants/MetaConstant";
 import {Property} from "./Property";
+export function JsonProperty(target: object, propertyKey: string): void;
+export function JsonProperty(value: string): CallableFunction;
+export function JsonProperty(value: string | object, propertyKey?: string): CallableFunction {
+    if (typeof value === 'string') {
+        return (target: (new () => object), propertyKey: string) => {
+            Property(target, propertyKey);
+            Reflect.defineMetadata(MetaConstant.JSON_PROPERTY, value, target, propertyKey);
+        };
+    } else {
+        Property(value, propertyKey);
+    }
 
-export function JsonProperty(value: string): CallableFunction {
-    return (target: (new () => object), propertyKey: string) => {
-        Property(target, propertyKey);
-        Reflect.defineMetadata(MetaConstant.JSON_PROPERTY, value, target, propertyKey);
-    };
 
-}
-export namespace annotation {
-    export const JsonProperty1 = JsonProperty;
 }
