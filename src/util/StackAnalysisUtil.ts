@@ -107,7 +107,7 @@
 import * as path from "path";
 import { StackTypeModeEnum } from "../enums/StackTypeModeEnum";
 import { StackTypePathTypeEnum } from "../enums/StackTypePathTypeEnum";
-import StackType from "../model/StackType";
+import { StackType } from "../model/StackType";
 
 /**
  *

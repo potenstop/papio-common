@@ -9,7 +9,7 @@ import { StackTypePathTypeEnum } from "../enums/StackTypePathTypeEnum";
  * @author yanshaowen
  * @date 2018/12/20 20:45
  */
-export default class StackType {
+export class StackType {
     // 类名
     public className: string;
     // 方法名

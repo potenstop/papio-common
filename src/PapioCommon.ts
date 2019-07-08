@@ -63,6 +63,7 @@ export *  from "./enums/DateWeekEnum";
 export *  from "./enums/RequestRedisCommand";
 export *  from "./enums/ContentTypeEnum";
 export *  from "./enums/ControllerArgumentSourceEnum";
+export *  from "./enums/HttpStatusEnum";
 
 export { RestDataSource } from "./data/rest/RestDataSource";
 export { RestConnection } from "./data/rest/RestConnection";
@@ -79,3 +80,11 @@ export * from "./converter/DateTimeConverter";
 export { Beans } from "./core/Beans";
 export { Controllers } from "./core/Controllers";
 export { Mappers } from "./core/Mappers";
+
+export { HttpRequestError } from "./error/HttpRequestError";
+export { ValidError } from "./error/ValidError";
+
+export { StackType }  from "./model/StackType";
+export { HttpRequestContext }  from "./model/HttpRequestContext";
+export { ControllerArgument }  from "./model/ControllerArgument";
+export { ValidMeta }  from "./model/ValidMeta";
