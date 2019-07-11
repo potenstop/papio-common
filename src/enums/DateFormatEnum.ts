@@ -9,6 +9,6 @@
  */
 export enum DateFormatEnum {
     DATETIME = "yyyy-MM-dd HH:mm:ss",
-    DATE = "yyyy-mm-dd",
-    DATETIMES = "yyyy-mm-dd HH:mm:ss.S",
+    DATE = "yyyy-MM-dd",
+    DATETIMES = "yyyy-MM-dd HH:mm:ss.S",
 }

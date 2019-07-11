@@ -13,6 +13,9 @@ import {JSHelperUtil} from "../util/JSHelperUtil";
 import {StringUtil} from "../util/StringUtil";
 import {CommonConstant} from "../constants/CommonConstant";
 import {IConverter} from "../converter/IConverter";
+import {DateTimeConverter} from "../converter/DateTimeConverter";
+import {DateUtil} from "../util/DateUtil";
+import {DateFormatEnum} from "../enums/DateFormatEnum";
 
 export class JsonProtocol {
     /**
@@ -73,7 +76,13 @@ export class JsonProtocol {
         }
         const keysMap = Reflect.getOwnMetadata(MetaConstant.KEYS, bean.constructor.prototype) || new Set<string>();
         for (const key of keysMap) {
-            let jsonKeyName = Reflect.getMetadata(MetaConstant.JSON_PROPERTY, bean, key);
+            let jsonOption = Reflect.getMetadata(MetaConstant.JSON_PROPERTY, bean, key);
+            let jsonKeyName = null;
+            let jsonFormat = null;
+            if (JSHelperUtil.isNotNull(jsonOption)) {
+                jsonKeyName = jsonOption.value;
+                jsonFormat = jsonOption.format;
+            }
             let typeName = Reflect.getMetadata(MetaConstant.DESIGN_TYPE, bean, key);
             // const GenericsKey = Reflect.getMetadata(MetaConstant.BEAN_GENERICS, bean, key);
             const genericsKey = parentKey + "." + key;
@@ -90,7 +99,13 @@ export class JsonProtocol {
                     continue;
                 }
             }
-            if (JSHelperUtil.isClassType(typeName)) {
+            if (typeName === Date) {
+                if (JSHelperUtil.isNotNull(jsonFormat)) {
+                    result[jsonKeyName] = DateUtil.format(bean[key], jsonFormat);
+                } else {
+                    result[jsonKeyName] = DateUtil.format(bean[key], DateFormatEnum.DATETIMES);
+                }
+            } else if (JSHelperUtil.isClassType(typeName)) {
                 result[jsonKeyName] = JsonProtocol.toJson(bean[key], beanGenericsMap, genericsKey + "." + typeName.name);
             } else if (JSHelperUtil.isArrayType(typeName) || JSHelperUtil.isSetType(typeName)) {
                 result[jsonKeyName] = JsonProtocol.toArray(bean[key], beanGenericsMap, genericsKey + "." + (JSHelperUtil.isArrayType(typeName) ? "Array" : "Set"));
@@ -112,7 +127,13 @@ export class JsonProtocol {
      * @return JSON
      */
     public static toJSONString(bean: object, beanGenericsMap?: Map<string, new () => object>, parentKey?: string): string {
-        return JSON.stringify(JsonProtocol.toJson(bean, beanGenericsMap, parentKey));
+        let json = {};
+        if (Array.isArray(bean)) {
+            json = JsonProtocol.toArray(bean, beanGenericsMap, parentKey);
+        } else {
+            json = JsonProtocol.toJson(bean, beanGenericsMap, parentKey);
+        }
+        return JSON.stringify(json);
     }
 
     /**
@@ -186,7 +207,13 @@ export class JsonProtocol {
         // 遍历bean所有的属性
         const keysMap = Reflect.getOwnMetadata(MetaConstant.KEYS, Bean.prototype) || new Set<string>();
         for (const key of keysMap) {
-            let jsonKeyName = Reflect.getMetadata(MetaConstant.JSON_PROPERTY, Bean.prototype, key);
+            let jsonOption = Reflect.getMetadata(MetaConstant.JSON_PROPERTY, Bean.prototype, key);
+            let jsonKeyName = null;
+            let jsonFormat = null;
+            if (JSHelperUtil.isNotNull(jsonOption)) {
+                jsonKeyName = jsonOption.value;
+                jsonFormat = jsonOption.format;
+            }
             let typeName = Reflect.getMetadata(MetaConstant.DESIGN_TYPE, Bean.prototype, key);
             // const GenericsIndex = Reflect.getMetadata(MetaConstant.BEAN_GENERICS, Bean.prototype, key);
             const genericsKey = parentKey + "." + key;
@@ -220,6 +247,12 @@ export class JsonProtocol {
                     } else if (JSHelperUtil.isBooleanType(typeName)) {
                         result[key] = Boolean(json[jsonKeyName]);
                     }
+                }
+            } else if (typeName === Date) {
+                if (JSHelperUtil.isNotNull(jsonFormat)) {
+                    result[jsonKeyName] = DateUtil.parse(json[jsonKeyName], jsonFormat);
+                } else {
+                    result[jsonKeyName] = DateUtil.parse(json[jsonKeyName], DateFormatEnum.DATETIMES);
                 }
             } else if (JSHelperUtil.isClassType(typeName)) {
                 result[key] = JsonProtocol.jsonToBean(json[jsonKeyName], typeName,  beanGenericsMap, genericsKey + "." + typeName.name);

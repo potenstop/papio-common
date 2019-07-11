@@ -5,6 +5,7 @@ import {JsonProperty} from "../../../src/annotation/bean/JsonProperty";
 import {Property} from "../../../src/annotation/bean/Property";
 import {JsonProtocol} from "../../../src/protocol/JsonProtocol";
 import {DateTimeConverter} from "../../../src/converter/DateTimeConverter";
+import {DateUtil} from "../../../src/PapioCommon";
 
 class UserInfo {
     @JsonProperty("nick_name")
@@ -35,6 +36,8 @@ class MyBean {
     public bonus: Bonus<number>;
     @Property
     public numbers: number[];
+    @JsonProperty
+    public createTime: Date;
 }
 const myBean = new MyBean();
 myBean.inputName = "chook";
@@ -57,6 +60,7 @@ myBean.bonus = bonus;
 myBean.numbers = [];
 myBean.numbers.push(1);
 myBean.numbers.push(2);
+myBean.createTime = new Date("2019-01-01 11:11:11.111");
 
 const myBeanMap = new Map<string, new () => object>();
 myBeanMap.set("MyBean.numbers", Array);
@@ -117,6 +121,7 @@ describe("测试 JsonProtocol.test", () => {
         const myBean1 = JsonProtocol.jsonToBean(json, MyBean, myBeanMap, "MyBean");
         const myBean2 = JsonProtocol.toJSONString(myBean1, myBeanMap, "MyBean");
         expect(myBean1.inputName).to.equals(myBean.inputName);
+        expect(json["createTime"]).to.equals("2019-01-01 11:11:11.111");
     });
 
     it("response", () => {
