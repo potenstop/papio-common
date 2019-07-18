@@ -28,12 +28,6 @@ export class JsonProtocol {
      * @return JSON
      */
     public static toArray(beans: object[], beanGenericsMap?: Map<string, new () => object>, parentKey?: string): object[] {
-        if (JSHelperUtil.isNullOrUndefined(beans)) {
-            return [];
-        }
-        if (JSHelperUtil.isNullOrUndefined(parentKey)) {
-            parentKey = beans.constructor.name;
-        }
         let _beanGenericsMap = new Map<string, new () => object>();
         if (JSHelperUtil.isNullOrUndefined(beanGenericsMap)) {
             _beanGenericsMap = new Map<string, new () => object>();
@@ -46,8 +40,14 @@ export class JsonProtocol {
     }
     public static _toArray(beans: object[], beanGenericsMap: Map<string, new () => object>, parentKey: string): object[] {
         const result = [];
+        if (JSHelperUtil.isNullOrUndefined(beans)) {
+            return result;
+        }
+        if (JSHelperUtil.isNullOrUndefined(parentKey)) {
+            parentKey = beans.constructor.name;
+        }
         // 检查泛型是否定义了
-        if (JSHelperUtil.isNullOrUndefined(beanGenericsMap) || JSHelperUtil.isNullOrUndefined(beanGenericsMap.get(parentKey))) {
+        if (JSHelperUtil.isNullOrUndefined(beanGenericsMap.get(parentKey))) {
             return result;
         }
         for (const bean of beans) {
@@ -81,12 +81,7 @@ export class JsonProtocol {
      * @return JSON
      */
     public static toJson(bean: object, beanGenericsMap?: Map<string, new () => object>, parentKey?: string): object {
-        if (JSHelperUtil.isNullOrUndefined(bean)) {
-            return {};
-        }
-        if (JSHelperUtil.isNullOrUndefined(parentKey)) {
-            parentKey = bean.constructor.name;
-        }
+
         let _beanGenericsMap = new Map<string, new () => object>();
         if (JSHelperUtil.isNullOrUndefined(beanGenericsMap)) {
             _beanGenericsMap = new Map<string, new () => object>();
@@ -98,6 +93,12 @@ export class JsonProtocol {
         return JsonProtocol._toJson(bean, _beanGenericsMap, parentKey);
     }
     private static _toJson(bean: object, beanGenericsMap: Map<string, new () => object>, parentKey: string): object {
+        if (JSHelperUtil.isNullOrUndefined(bean)) {
+            return {};
+        }
+        if (JSHelperUtil.isNullOrUndefined(parentKey)) {
+            parentKey = bean.constructor.name;
+        }
         const result = {};
         const keysMap = Reflect.getOwnMetadata(MetaConstant.KEYS, bean.constructor.prototype) || new Set<string>();
         for (const key of keysMap) {
@@ -179,15 +180,6 @@ export class JsonProtocol {
      * @return Bean[]
      */
     public static arrayToBeans<T>(array: object[], Bean: any, beanGenericsMap?: Map<string, new () => object>, parentKey?: string): T[]  {
-        if (JSHelperUtil.isNullOrUndefined(array)) {
-            return null;
-        }
-        if (JSHelperUtil.isNullOrUndefined(Bean)) {
-            return [];
-        }
-        if (JSHelperUtil.isNullOrUndefined(parentKey)) {
-            parentKey = Bean.name;
-        }
         let _beanGenericsMap = new Map<string, new () => object>();
         if (JSHelperUtil.isNullOrUndefined(beanGenericsMap)) {
             _beanGenericsMap = new Map<string, new () => object>();
@@ -200,8 +192,17 @@ export class JsonProtocol {
     }
     public static _arrayToBeans<T>(array: object[], Bean: any, beanGenericsMap: Map<string, new () => object>, parentKey: string): T[]  {
         let result = [];
+        if (JSHelperUtil.isNullOrUndefined(array)) {
+            return null;
+        }
+        if (JSHelperUtil.isNullOrUndefined(Bean)) {
+            return [];
+        }
+        if (JSHelperUtil.isNullOrUndefined(parentKey)) {
+            parentKey = Bean.name;
+        }
         // 检查泛型是否定义了
-        if (JSHelperUtil.isNullOrUndefined(beanGenericsMap) || JSHelperUtil.isNullOrUndefined(beanGenericsMap.get(parentKey))) {
+        if (JSHelperUtil.isNullOrUndefined(beanGenericsMap.get(parentKey))) {
             return result;
         }
         for (const bean of array) {
@@ -235,15 +236,6 @@ export class JsonProtocol {
      * @return Bean
      */
     public static jsonToBean<T>(json: object, Bean: new () => T, beanGenericsMap?: Map<string, new () => object>, parentKey?: string): T {
-        if (JSHelperUtil.isNullOrUndefined(Bean)) {
-            return null;
-        }
-        if (JSHelperUtil.isNullOrUndefined(json)) {
-            return new Bean();
-        }
-        if (JSHelperUtil.isNullOrUndefined(parentKey)) {
-            parentKey = Bean.name;
-        }
         let _beanGenericsMap = new Map<string, new () => object>();
         if (JSHelperUtil.isNullOrUndefined(beanGenericsMap)) {
             _beanGenericsMap = new Map<string, new () => object>();
@@ -255,6 +247,15 @@ export class JsonProtocol {
         return JsonProtocol._jsonToBean(json, Bean, _beanGenericsMap, parentKey);
     }
     public static _jsonToBean<T>(json: object, Bean: new () => T, beanGenericsMap: Map<string, new () => object>, parentKey: string): T {
+        if (JSHelperUtil.isNullOrUndefined(Bean)) {
+            return null;
+        }
+        if (JSHelperUtil.isNullOrUndefined(json)) {
+            return new Bean();
+        }
+        if (JSHelperUtil.isNullOrUndefined(parentKey)) {
+            parentKey = Bean.name;
+        }
         const result  = new Bean();
         // 遍历bean所有的属性
         const keysMap = Reflect.getOwnMetadata(MetaConstant.KEYS, Bean.prototype) || new Set<string>();
