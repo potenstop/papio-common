@@ -8,6 +8,7 @@
  * @date 2018/12/28 13:00
  */
 import {ValidOptions} from "../annotation/validation/ValidOptions";
+import {JsonProperty} from "../PapioCommon";
 
 export class ValidMeta<T> {
     public paramIndex: number;

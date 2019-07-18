@@ -5,7 +5,7 @@ import {JsonProperty} from "../../../src/annotation/bean/JsonProperty";
 import {Property} from "../../../src/annotation/bean/Property";
 import {JsonProtocol} from "../../../src/protocol/JsonProtocol";
 import {DateTimeConverter} from "../../../src/converter/DateTimeConverter";
-import {DateUtil} from "../../../src/PapioCommon";
+import {DateUtil, ReturnGenericsProperty} from "../../../src/PapioCommon";
 
 class UserInfo {
     @JsonProperty("nick_name")
@@ -107,6 +107,17 @@ standard1.data.push(user);
 standard1.code = 2;
 standard1.message = "222";*/
 
+class Item{
+    @JsonProperty
+    public time: Date;
+}
+class Response {
+    @JsonProperty
+    @ReturnGenericsProperty(new Map<string, any>().set("Array", Item))
+    public items: Item[];
+}
+
+
 describe("测试 JsonProtocol.test", () => {
     it("toJson()", async () => {
         const json = JsonProtocol.toJson(myBean, myBeanMap, "MyBean") as any;
@@ -158,5 +169,13 @@ describe("测试 JsonProtocol.test", () => {
         JsonProtocol.copyProperties(source , target, iConv);
         expect(target.id).to.equal(1);
         expect(target.createTime).to.equal("2019-02-23 11:11:11");
+    });
+    it("return", () => {
+        let response = new Response();
+        let item = new Item();
+        item.time = new Date("2019-02-23 11:11:11");
+        response.items = [item];
+        const object = JsonProtocol.toJson(response);
+        expect(object['items'][0].time).to.equal("2019-02-23 11:11:11.0");
     });
 });

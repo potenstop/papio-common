@@ -27,11 +27,25 @@ export class JsonProtocol {
      * @param parentKey
      * @return JSON
      */
-    public static toArray(beans: object[], beanGenericsMap: Map<string, new () => object>, parentKey: string): object[] {
-        const result = [];
+    public static toArray(beans: object[], beanGenericsMap?: Map<string, new () => object>, parentKey?: string): object[] {
         if (JSHelperUtil.isNullOrUndefined(beans)) {
-            return result;
+            return [];
         }
+        if (JSHelperUtil.isNullOrUndefined(parentKey)) {
+            parentKey = beans.constructor.name;
+        }
+        let _beanGenericsMap = new Map<string, new () => object>();
+        if (JSHelperUtil.isNullOrUndefined(beanGenericsMap)) {
+            _beanGenericsMap = new Map<string, new () => object>();
+        } else {
+            for (const [key, value] of beanGenericsMap) {
+                _beanGenericsMap.set(key, value);
+            }
+        }
+        return JsonProtocol._toArray(beans, _beanGenericsMap, parentKey);
+    }
+    public static _toArray(beans: object[], beanGenericsMap: Map<string, new () => object>, parentKey: string): object[] {
+        const result = [];
         // 检查泛型是否定义了
         if (JSHelperUtil.isNullOrUndefined(beanGenericsMap) || JSHelperUtil.isNullOrUndefined(beanGenericsMap.get(parentKey))) {
             return result;
@@ -50,7 +64,7 @@ export class JsonProtocol {
                     newBean = null;
                 }
             } else {
-                newBean = JsonProtocol.toJson(bean, beanGenericsMap, parentKey + "." + beanGenericsMap.get(parentKey).name);
+                newBean = JsonProtocol._toJson(bean, beanGenericsMap, parentKey + "." + beanGenericsMap.get(parentKey).name);
             }
             result.push(newBean);
 
@@ -67,16 +81,28 @@ export class JsonProtocol {
      * @return JSON
      */
     public static toJson(bean: object, beanGenericsMap?: Map<string, new () => object>, parentKey?: string): object {
-        const result = {};
         if (JSHelperUtil.isNullOrUndefined(bean)) {
-            return result;
+            return {};
         }
         if (JSHelperUtil.isNullOrUndefined(parentKey)) {
             parentKey = bean.constructor.name;
         }
+        let _beanGenericsMap = new Map<string, new () => object>();
+        if (JSHelperUtil.isNullOrUndefined(beanGenericsMap)) {
+            _beanGenericsMap = new Map<string, new () => object>();
+        } else {
+            for (const [key, value] of beanGenericsMap) {
+                _beanGenericsMap.set(key, value);
+            }
+        }
+        return JsonProtocol._toJson(bean, _beanGenericsMap, parentKey);
+    }
+    private static _toJson(bean: object, beanGenericsMap: Map<string, new () => object>, parentKey: string): object {
+        const result = {};
         const keysMap = Reflect.getOwnMetadata(MetaConstant.KEYS, bean.constructor.prototype) || new Set<string>();
         for (const key of keysMap) {
             let jsonOption = Reflect.getMetadata(MetaConstant.JSON_PROPERTY, bean, key);
+            const returnGenerics = Reflect.getOwnMetadata(MetaConstant.BEAN_RETURN_GENERICS, bean.constructor.prototype, key) || new Map<string, new () => object>();
             let jsonKeyName = null;
             let jsonFormat = null;
             if (JSHelperUtil.isNotNull(jsonOption)) {
@@ -86,29 +112,34 @@ export class JsonProtocol {
             let typeName = Reflect.getMetadata(MetaConstant.DESIGN_TYPE, bean, key);
             // const GenericsKey = Reflect.getMetadata(MetaConstant.BEAN_GENERICS, bean, key);
             const genericsKey = parentKey + "." + key;
+            for (const [genKey, genValue] of returnGenerics) {
+                if (!beanGenericsMap.has(genericsKey + "." + genKey)) {
+                    beanGenericsMap.set(genericsKey + "." + genKey, genValue);
+                }
+            }
             if (StringUtil.isBank(jsonKeyName)) {
                 jsonKeyName = key;
             }
             // 可能为泛型或者any
             if (typeName === Object) {
                 // 判断是否有泛型字典
-                if (JSHelperUtil.isNotNull(beanGenericsMap) && beanGenericsMap.has(genericsKey) && JSHelperUtil.isNotNull(beanGenericsMap.get(genericsKey))) {
+                if (beanGenericsMap.has(genericsKey) && JSHelperUtil.isNotNull(beanGenericsMap.get(genericsKey))) {
                     typeName = beanGenericsMap.get(genericsKey);
                 } else {
                     result[jsonKeyName] = null;
                     continue;
                 }
             }
-            if (typeName === Date) {
+            if (typeName === Date && bean[key] instanceof Date) {
                 if (JSHelperUtil.isNotNull(jsonFormat)) {
                     result[jsonKeyName] = DateUtil.format(bean[key], jsonFormat);
                 } else {
                     result[jsonKeyName] = DateUtil.format(bean[key], DateFormatEnum.DATETIMES);
                 }
             } else if (JSHelperUtil.isClassType(typeName)) {
-                result[jsonKeyName] = JsonProtocol.toJson(bean[key], beanGenericsMap, genericsKey + "." + typeName.name);
+                result[jsonKeyName] = JsonProtocol._toJson(bean[key], beanGenericsMap, genericsKey + "." + typeName.name);
             } else if (JSHelperUtil.isArrayType(typeName) || JSHelperUtil.isSetType(typeName)) {
-                result[jsonKeyName] = JsonProtocol.toArray(bean[key], beanGenericsMap, genericsKey + "." + (JSHelperUtil.isArrayType(typeName) ? "Array" : "Set"));
+                result[jsonKeyName] = JsonProtocol._toArray(bean[key], beanGenericsMap, genericsKey + "." + (JSHelperUtil.isArrayType(typeName) ? "Array" : "Set"));
                 // array set
             } else {
                 if (bean[key] === undefined) { bean[key] = null; }
@@ -117,6 +148,7 @@ export class JsonProtocol {
         }
         return result;
     }
+
     /**
      * 方法描述: bean 对象转json字符串
      * @author  yanshaowen
@@ -146,15 +178,28 @@ export class JsonProtocol {
      * @param parentKey
      * @return Bean[]
      */
-    public static arrayToBeans<T>(array: object[], Bean: any, beanGenericsMap: Map<string, new () => object>, parentKey: string): T[] | Set<T> {
-        let result;
-        let isSet = true;
-        if (JSHelperUtil.isArrayType(Bean)) {
-            result = [];
-            isSet = false;
-        } else {
-            result = new Set();
+    public static arrayToBeans<T>(array: object[], Bean: any, beanGenericsMap?: Map<string, new () => object>, parentKey?: string): T[]  {
+        if (JSHelperUtil.isNullOrUndefined(array)) {
+            return null;
         }
+        if (JSHelperUtil.isNullOrUndefined(Bean)) {
+            return [];
+        }
+        if (JSHelperUtil.isNullOrUndefined(parentKey)) {
+            parentKey = Bean.name;
+        }
+        let _beanGenericsMap = new Map<string, new () => object>();
+        if (JSHelperUtil.isNullOrUndefined(beanGenericsMap)) {
+            _beanGenericsMap = new Map<string, new () => object>();
+        } else {
+            for (const [key, value] of beanGenericsMap) {
+                _beanGenericsMap.set(key, value);
+            }
+        }
+        return JsonProtocol._arrayToBeans<T>(array, Bean, _beanGenericsMap, parentKey);
+    }
+    public static _arrayToBeans<T>(array: object[], Bean: any, beanGenericsMap: Map<string, new () => object>, parentKey: string): T[]  {
+        let result = [];
         // 检查泛型是否定义了
         if (JSHelperUtil.isNullOrUndefined(beanGenericsMap) || JSHelperUtil.isNullOrUndefined(beanGenericsMap.get(parentKey))) {
             return result;
@@ -173,13 +218,9 @@ export class JsonProtocol {
                     newBean = null;
                 }
             } else {
-                newBean = JsonProtocol.jsonToBean(bean, beanGenericsMap.get(parentKey), beanGenericsMap, parentKey + "." + beanGenericsMap.get(parentKey).name);
+                newBean = JsonProtocol._jsonToBean(bean, beanGenericsMap.get(parentKey), beanGenericsMap, parentKey + "." + beanGenericsMap.get(parentKey).name);
             }
-            if (isSet) {
-                result.add(newBean);
-            } else {
-                result.push(newBean);
-            }
+            result.push(newBean);
         }
         return result;
     }
@@ -193,17 +234,28 @@ export class JsonProtocol {
      * @param parentKey
      * @return Bean
      */
-    public static jsonToBean<T>(json: object, Bean: new () => T, beanGenericsMap: Map<string, new () => object>, parentKey?: string): T {
+    public static jsonToBean<T>(json: object, Bean: new () => T, beanGenericsMap?: Map<string, new () => object>, parentKey?: string): T {
         if (JSHelperUtil.isNullOrUndefined(Bean)) {
             return null;
         }
-        const result  = new Bean();
         if (JSHelperUtil.isNullOrUndefined(json)) {
-            return result;
+            return new Bean();
         }
         if (JSHelperUtil.isNullOrUndefined(parentKey)) {
             parentKey = Bean.name;
         }
+        let _beanGenericsMap = new Map<string, new () => object>();
+        if (JSHelperUtil.isNullOrUndefined(beanGenericsMap)) {
+            _beanGenericsMap = new Map<string, new () => object>();
+        } else {
+            for (const [key, value] of beanGenericsMap) {
+                _beanGenericsMap.set(key, value);
+            }
+        }
+        return JsonProtocol._jsonToBean(json, Bean, _beanGenericsMap, parentKey);
+    }
+    public static _jsonToBean<T>(json: object, Bean: new () => T, beanGenericsMap: Map<string, new () => object>, parentKey: string): T {
+        const result  = new Bean();
         // 遍历bean所有的属性
         const keysMap = Reflect.getOwnMetadata(MetaConstant.KEYS, Bean.prototype) || new Set<string>();
         for (const key of keysMap) {
@@ -223,7 +275,7 @@ export class JsonProtocol {
             // 可能为泛型或者any
             if (typeName === Object) {
                 // 判断是否有泛型字典
-                if (JSHelperUtil.isNotNull(beanGenericsMap) && beanGenericsMap.has(genericsKey) && JSHelperUtil.isNotNull(beanGenericsMap.get(genericsKey))) {
+                if (beanGenericsMap.has(genericsKey) && JSHelperUtil.isNotNull(beanGenericsMap.get(genericsKey))) {
                     typeName = beanGenericsMap.get(genericsKey);
                 } else {
                     result[key] = null;
@@ -248,17 +300,17 @@ export class JsonProtocol {
                         result[key] = Boolean(json[jsonKeyName]);
                     }
                 }
-            } else if (typeName === Date) {
+            } else if (typeName === Date && json[jsonKeyName] instanceof Date) {
                 if (JSHelperUtil.isNotNull(jsonFormat)) {
                     result[jsonKeyName] = DateUtil.parse(json[jsonKeyName], jsonFormat);
                 } else {
                     result[jsonKeyName] = DateUtil.parse(json[jsonKeyName], DateFormatEnum.DATETIMES);
                 }
             } else if (JSHelperUtil.isClassType(typeName)) {
-                result[key] = JsonProtocol.jsonToBean(json[jsonKeyName], typeName,  beanGenericsMap, genericsKey + "." + typeName.name);
+                result[key] = JsonProtocol._jsonToBean(json[jsonKeyName], typeName,  beanGenericsMap, genericsKey + "." + typeName.name);
             } else if (JSHelperUtil.isArrayType(typeName) || JSHelperUtil.isSetType(typeName)) {
                 // array set
-                result[key] = JsonProtocol.arrayToBeans(json[jsonKeyName], typeName, beanGenericsMap, genericsKey + "." + (JSHelperUtil.isArrayType(typeName) ? "Array" : "Set"));
+                result[key] = JsonProtocol._arrayToBeans(json[jsonKeyName], typeName, beanGenericsMap, genericsKey + "." + (JSHelperUtil.isArrayType(typeName) ? "Array" : "Set"));
             } else {
                 // type error
             }
