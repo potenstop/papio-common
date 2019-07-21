@@ -117,7 +117,6 @@ class Response {
     public items: Item[];
 }
 
-
 describe("测试 JsonProtocol.test", () => {
     it("toJson()", async () => {
         const json = JsonProtocol.toJson(myBean, myBeanMap, "MyBean") as any;

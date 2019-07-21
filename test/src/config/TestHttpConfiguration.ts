@@ -10,7 +10,6 @@
 import {Bean, Configuration, AxiosDataSource, MapperScan} from "../../../src/PapioCommon";
 import {IDataSource} from "type-interface";
 
-
 @Configuration
 @MapperScan("@../test/src/dao")
 //@MapperScan("@dao/rest-test")

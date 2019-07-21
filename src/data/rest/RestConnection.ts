@@ -1,5 +1,5 @@
 import * as http from "http";
-import {RequestOptions} from "http";
+import {OutgoingHttpHeaders, RequestOptions} from "http";
 import {RequestMethod} from "../../enums/RequestMethod";
 import {JSHelperUtil} from "../../util/JSHelperUtil";
 import {HttpRequestError} from "../../error/HttpRequestError";
@@ -73,8 +73,8 @@ export class RestConnection implements IConnection {
     public request<T>(result: new () => T, genericsProperty: Map<string, new () => object>, uri: string, method: RequestMethod, timeout: number): Promise<T>;
     public request<T>(result: new () => T, genericsProperty: Map<string, new () => object>, uri: string, method: RequestMethod, timeout: number, params: object): Promise<T>;
     public request<T>(result: new () => T, genericsProperty: Map<string, new () => object>, uri: string, method: RequestMethod, timeout: number, params: object, body: object): Promise<T>;
-    public request<T>(result: new () => T, genericsProperty: Map<string, new () => object>, uri: string, method: RequestMethod, timeout: number, params: object, body: object, headers: object): Promise<T>;
-    public async request<T>(result: new () => T, genericsProperty: Map<string, new () => object>, uri: string, method?: RequestMethod, timeout?: number, params?: object, body?: object, headers?: object): Promise<T> {
+    public request<T>(result: new () => T, genericsProperty: Map<string, new () => object>, uri: string, method: RequestMethod, timeout: number, params: object, body: object, headers: OutgoingHttpHeaders): Promise<T>;
+    public async request<T>(result: new () => T, genericsProperty: Map<string, new () => object>, uri: string, method?: RequestMethod, timeout?: number, params?: object, body?: object, headers?: OutgoingHttpHeaders): Promise<T> {
         if (!method) {
             method = RequestMethod.GET;
         }
@@ -85,9 +85,25 @@ export class RestConnection implements IConnection {
         requestOptions.agent = this.options.agent;
         requestOptions.host = this.options.host;
         requestOptions.port = this.options.port;
-        requestOptions.path = uri;
         requestOptions.method = method;
-        const resultData = await requestPromise(requestOptions, timeout);
+        if (!headers) {
+            headers = {"content-type" : "application/json; charset=utf-8"};
+        }
+        if (!headers["content-type"]) {
+            headers["content-type"] = "application/json; charset=utf-8";
+        }
+        requestOptions.headers = headers;
+        if (params) {
+            const list = [];
+            for (const key of Object.keys(params)) {
+                list.push(`${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`);
+            }
+            if (list.length > 0) {
+                uri += "?" + list.join("&");
+            }
+        }
+        requestOptions.path = uri;
+        const resultData = await requestPromise(requestOptions, timeout, body);
         if (resultData.resContentType !== ContentTypeEnum.APPLICATION_JSON) {
             const httpRequestError = new HttpRequestError(`request content-type(${resultData.resContentType}) error, only support [${ContentTypeEnum.APPLICATION_JSON}]`);
             httpRequestError.code = HttpRequestErrorEnum.CONTENT_TYPE_ERROR;
@@ -109,7 +125,7 @@ export class RestConnection implements IConnection {
     }
 }
 
-async function requestPromise(options: RequestOptions, timeout: number): Promise<HttpRequestContext> {
+async function requestPromise(options: RequestOptions, timeout: number, requestBody?: object): Promise<HttpRequestContext> {
     let isReturn = false;
     const requestContext = new HttpRequestContext();
     requestContext.options = options;
@@ -177,6 +193,9 @@ async function requestPromise(options: RequestOptions, timeout: number): Promise
                 return reject(httpRequestError);
             }
         });
+        if (requestBody) {
+            req.write(JSON.stringify(requestBody));
+        }
         req.end();
     });
 }
