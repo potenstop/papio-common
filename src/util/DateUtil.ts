@@ -208,7 +208,7 @@ export class DateUtil {
 
         let d4 = /^\d{4}$/;
         let d2 = /^\d{2}$/;
-        let d3 = /^\d{3}$/;
+        let d3 = /^\d{1,3}$/;
         let aa = /^[ap]m$/;
         if (
             !(!fullYear || d4.test(fullYear)) ||
@@ -219,7 +219,7 @@ export class DateUtil {
             !(!HOUR || d2.test(HOUR)) ||
             !(!minute || d2.test(minute)) ||
             !(!seconds || d2.test(seconds)) ||
-            !(!mSeconds || d3.test(mSeconds))
+            !(d3.test(mSeconds))
         ) {
             return null;
         }

@@ -10,6 +10,9 @@ describe("测试 DateUtil.test", () => {
         expect(DateUtil.format(new Date(), DateFormatEnum.DATETIME)).to.equal("2019-02-23 11:02:01");
     });
     it("format DATETIMES", async () => {
-        expect(DateUtil.format(new Date(), DateFormatEnum.DATETIMES)).to.equal("2019-02-23 11:02:01.111");
+        expect(DateUtil.format(new Date("2019-01-02 00:10:20.0"), DateFormatEnum.DATETIMES)).to.equal("2019-01-02 00:10:20.0");
+    });
+    it("parse DATETIMES", async () => {
+        expect(DateUtil.format(DateUtil.parse("2019-01-02 00:10:20.0", DateFormatEnum.DATETIMES), DateFormatEnum.DATETIMES)).to.equal("2019-01-02 00:10:20.0");
     });
 })

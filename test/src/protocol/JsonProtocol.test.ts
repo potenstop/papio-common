@@ -5,7 +5,7 @@ import {JsonProperty} from "../../../src/annotation/bean/JsonProperty";
 import {Property} from "../../../src/annotation/bean/Property";
 import {JsonProtocol} from "../../../src/protocol/JsonProtocol";
 import {DateTimeConverter} from "../../../src/converter/DateTimeConverter";
-import {DateUtil, ReturnGenericsProperty} from "../../../src/PapioCommon";
+import {DateFormatEnum, DateUtil, ReturnGenericsProperty} from "../../../src/PapioCommon";
 
 class UserInfo {
     @JsonProperty("nick_name")
@@ -176,6 +176,8 @@ describe("测试 JsonProtocol.test", () => {
         item.time = new Date("2019-02-23 11:11:11");
         response.items = [item];
         const object = JsonProtocol.toJson(response);
+        const response1 = JsonProtocol.jsonToBean(object, Response);
         expect(object['items'][0].time).to.equal("2019-02-23 11:11:11.0");
+        expect(DateUtil.format(response1.items[0].time, DateFormatEnum.DATETIMES)).to.equal("2019-02-23 11:11:11.0");
     });
 });

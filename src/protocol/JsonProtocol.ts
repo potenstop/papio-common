@@ -261,6 +261,8 @@ export class JsonProtocol {
         const keysMap = Reflect.getOwnMetadata(MetaConstant.KEYS, Bean.prototype) || new Set<string>();
         for (const key of keysMap) {
             let jsonOption = Reflect.getMetadata(MetaConstant.JSON_PROPERTY, Bean.prototype, key);
+            const returnGenerics = Reflect.getOwnMetadata(MetaConstant.BEAN_RETURN_GENERICS, Bean.prototype, key) || new Map<string, new () => object>();
+
             let jsonKeyName = null;
             let jsonFormat = null;
             if (JSHelperUtil.isNotNull(jsonOption)) {
@@ -272,6 +274,11 @@ export class JsonProtocol {
             const genericsKey = parentKey + "." + key;
             if (JSHelperUtil.isNullOrUndefined(jsonKeyName)) {
                 jsonKeyName = key;
+            }
+            for (const [genKey, genValue] of returnGenerics) {
+                if (!beanGenericsMap.has(genericsKey + "." + genKey)) {
+                    beanGenericsMap.set(genericsKey + "." + genKey, genValue);
+                }
             }
             // 可能为泛型或者any
             if (typeName === Object) {
@@ -301,7 +308,7 @@ export class JsonProtocol {
                         result[key] = Boolean(json[jsonKeyName]);
                     }
                 }
-            } else if (typeName === Date && json[jsonKeyName] instanceof Date) {
+            } else if (typeName === Date && typeof json[jsonKeyName] === "string") {
                 if (JSHelperUtil.isNotNull(jsonFormat)) {
                     result[jsonKeyName] = DateUtil.parse(json[jsonKeyName], jsonFormat);
                 } else {
