@@ -118,6 +118,11 @@ export class DateUtil {
                 case DatePatternsEnum.PATTERN_MILLISECOND: // S
                     milliSecond = date.getMilliseconds();
                     replacement = milliSecond + "";
+                    if (replacement.length === 1) {
+                        replacement = "00" + replacement;
+                    } else if (replacement.length === 2) {
+                        replacement = "0" + replacement;
+                    }
                     break;
                 case DatePatternsEnum.PATTERN_DAY_OF_WEEK: // E
                     days = date.getDay();
@@ -181,35 +186,35 @@ export class DateUtil {
      * S:毫秒;
      * @returns {Date} 日期时间对象
      */
-    static parse(datestr: string, format = "yyyy-MM-dd HH:mm:ss") {
+    public static parse(datestr: string, format = "yyyy-MM-dd HH:mm:ss") {
         if (!datestr) {
             return null;
         }
-        let fullYearPos = format.indexOf("yyyy");
-        let shortYearPos = format.indexOf("yy");
-        let monthPos = format.indexOf("MM");
-        let dayhPos = format.indexOf("dd");
-        let hourPos = format.indexOf("hh");
-        let HOURPos = format.indexOf("HH");
-        let minutePos = format.indexOf("mm");
-        let secondsPos = format.indexOf("ss");
-        let mSecondsPos = format.indexOf("S");
+        const fullYearPos = format.indexOf("yyyy");
+        const shortYearPos = format.indexOf("yy");
+        const monthPos = format.indexOf("MM");
+        const dayhPos = format.indexOf("dd");
+        const hourPos = format.indexOf("hh");
+        const HOURPos = format.indexOf("HH");
+        const minutePos = format.indexOf("mm");
+        const secondsPos = format.indexOf("ss");
+        const mSecondsPos = format.indexOf("S");
 
-        let fullYear: string = fullYearPos != -1 ? datestr.substring(fullYearPos, fullYearPos + 4) : null;
-        let shortYear: string = shortYearPos != -1 ? datestr.substring(shortYearPos, shortYearPos + 2) : null;
-        let month: string = monthPos != -1 ? datestr.substring(monthPos, monthPos + 2) : null;
-        let day: string = dayhPos != -1 ? datestr.substring(dayhPos, dayhPos + 2) : null;
-        let minute: string = minutePos != -1 ? datestr.substring(minutePos, minutePos + 2) : null;
-        let seconds: string = secondsPos != -1 ? datestr.substring(secondsPos, secondsPos + 2) : null;
-        let mSeconds: string = mSecondsPos != -1 ? datestr.substring(mSecondsPos, mSecondsPos + 3) : null;
+        const fullYear: string = fullYearPos !== -1 ? datestr.substring(fullYearPos, fullYearPos + 4) : null;
+        const shortYear: string = shortYearPos !== -1 ? datestr.substring(shortYearPos, shortYearPos + 2) : null;
+        const month: string = monthPos !== -1 ? datestr.substring(monthPos, monthPos + 2) : null;
+        const day: string = dayhPos !== -1 ? datestr.substring(dayhPos, dayhPos + 2) : null;
+        const minute: string = minutePos !== -1 ? datestr.substring(minutePos, minutePos + 2) : null;
+        const seconds: string = secondsPos !== -1 ? datestr.substring(secondsPos, secondsPos + 2) : null;
+        const mSeconds: string = mSecondsPos !== -1 ? datestr.substring(mSecondsPos, mSecondsPos + 3) : null;
 
-        let hour = hourPos != -1 ? datestr.substring(hourPos, hourPos + 2) : null;
-        let HOUR = HOURPos != -1 ? datestr.substring(HOURPos, HOURPos + 2) : null;
+        const hour = hourPos !== -1 ? datestr.substring(hourPos, hourPos + 2) : null;
+        const HOUR = HOURPos !== -1 ? datestr.substring(HOURPos, HOURPos + 2) : null;
 
-        let d4 = /^\d{4}$/;
-        let d2 = /^\d{2}$/;
-        let d3 = /^\d{1,3}$/;
-        let aa = /^[ap]m$/;
+        const d4 = /^\d{4}$/;
+        const d2 = /^\d{2}$/;
+        const d3 = /^\d{1,3}$/;
+        const aa = /^[ap]m$/;
         if (
             !(!fullYear || d4.test(fullYear)) ||
             !(!shortYear || d2.test(shortYear)) ||
@@ -224,16 +229,16 @@ export class DateUtil {
             return null;
         }
 
-        const fullYearI = parseInt(fullYear ? fullYear : (shortYear ? "20" + shortYear : "1970"));
-        const monthI = parseInt(month ? month : "1");
-        const dayI = parseInt(day ? day : "1");
-        const hourI = parseInt(hour ? hour : "0");
-        const HOURI = parseInt(HOUR ? HOUR : hour);
-        const minuteI = parseInt(minute ? minute : "0");
-        const secondsI = parseInt(seconds ? seconds : "0");
-        const mSecondsI = parseInt(mSeconds ? mSeconds : "0");
+        const fullYearI = +(fullYear ? fullYear : (shortYear ? "20" + shortYear : "1970"));
+        const monthI = +(month ? month : "1");
+        const dayI = +(day ? day : "1");
+        const hourI = +(hour ? hour : "0");
+        const HOURI = +(HOUR ? HOUR : hour);
+        const minuteI = +(minute ? minute : "0");
+        const secondsI = +(seconds ? seconds : "0");
+        const mSecondsI = +(mSeconds ? mSeconds : "0");
 
-        let date = new Date();
+        const date = new Date();
         date.setFullYear(fullYearI);
         date.setMonth(monthI - 1);
         date.setDate(dayI);
