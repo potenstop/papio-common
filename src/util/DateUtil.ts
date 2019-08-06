@@ -215,20 +215,51 @@ export class DateUtil {
         const d2 = /^\d{2}$/;
         const d3 = /^\d{1,3}$/;
         const aa = /^[ap]m$/;
-        if (
-            !(!fullYear || d4.test(fullYear)) ||
-            !(!shortYear || d2.test(shortYear)) ||
-            !(!month || d2.test(month)) ||
-            !(!day || d2.test(day)) ||
-            !(!hour || d2.test(hour)) ||
-            !(!HOUR || d2.test(HOUR)) ||
-            !(!minute || d2.test(minute)) ||
-            !(!seconds || d2.test(seconds)) ||
-            !(d3.test(mSeconds))
-        ) {
-            return null;
+        if (fullYear) {
+            if (!d4.test(fullYear)) {
+                throw new Error("str to date error dataStr=" + datestr);
+            }
         }
-
+        if (shortYear) {
+            if (!d2.test(shortYear)) {
+                throw new Error("str to date error dataStr=" + datestr);
+            }
+        }
+        if (month) {
+            if (!d2.test(month)) {
+                throw new Error("str to date error dataStr=" + datestr);
+            }
+        }
+        if (day) {
+            if (!d2.test(day)) {
+                throw new Error("str to date error dataStr=" + datestr);
+            }
+        }
+        if (hour) {
+            if (!d2.test(hour)) {
+                throw new Error("str to date error dataStr=" + datestr);
+            }
+        }
+        if (HOUR) {
+            if (!d2.test(HOUR)) {
+                throw new Error("str to date error dataStr=" + datestr);
+            }
+        }
+        if (minute) {
+            if (!d2.test(minute)) {
+                throw new Error("str to date error dataStr=" + datestr);
+            }
+        }
+        if (seconds) {
+            if (!d2.test(seconds)) {
+                throw new Error("str to date error dataStr=" + datestr);
+            }
+        }
+        if (mSeconds) {
+            if (!d3.test(mSeconds)) {
+                throw new Error("str to date error dataStr=" + datestr);
+            }
+        }
         const fullYearI = +(fullYear ? fullYear : (shortYear ? "20" + shortYear : "1970"));
         const monthI = +(month ? month : "1");
         const dayI = +(day ? day : "1");
