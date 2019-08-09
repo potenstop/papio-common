@@ -16,6 +16,7 @@ import {StringUtil} from "../../util/StringUtil";
 export function ComponentScan(value: string): CallableFunction;
 export function ComponentScan(value: string): CallableFunction {
     return (target: (new () => object)): void => {
+
         if (StringUtil.isNotBank(value)) {
             let p = "";
             if (value[0] === "@") {
