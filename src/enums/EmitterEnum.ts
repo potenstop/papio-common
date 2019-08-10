@@ -10,7 +10,7 @@
 export enum EmitterEnum {
     LOAD_APPLICATION = "loadApplication",
     AUTO_CONFIGURATION = "autoConfiguration",
-    LOAD_TASK_apollo = "loadTaskApollo",
-    lin = "loadTaskApollo",
+    LOAD_TASK_APOLLO = "loadTaskApollo",
+    LISTEN = "listen",
 
 }

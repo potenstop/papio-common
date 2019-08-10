@@ -7,8 +7,6 @@
  * @author yanshaowen
  * @date 2019/1/2 15:07
  */
-
-
 export { JsonProperty } from "./annotation/bean/JsonProperty";
 export { Property } from "./annotation/bean/Property";
 export { ReturnGenericsProperty } from "./annotation/bean/ReturnGenericsProperty";
@@ -29,7 +27,6 @@ export { OptionsMapping } from "./annotation/mapping/OptionsMapping";
 export { PatchMapping } from "./annotation/mapping/PatchMapping";
 export { PutMapping } from "./annotation/mapping/PutMapping";
 export { TraceMapping } from "./annotation/mapping/TraceMapping";
-
 
 export { Max } from "./annotation/validation/Max";
 export { Min } from "./annotation/validation/Min";
@@ -65,6 +62,7 @@ export *  from "./enums/RequestRedisCommand";
 export *  from "./enums/ContentTypeEnum";
 export *  from "./enums/ControllerArgumentSourceEnum";
 export *  from "./enums/HttpStatusEnum";
+export *  from "./enums/EmitterEnum";
 
 export { RestDataSource } from "./data/rest/RestDataSource";
 export { RestConnection } from "./data/rest/RestConnection";
@@ -81,6 +79,7 @@ export * from "./converter/DateTimeConverter";
 export { Beans } from "./core/Beans";
 export { Controllers, Controller } from "./core/Controllers";
 export { Mappers } from "./core/Mappers";
+export { PapioEmitterDefault } from "./core/PapioEmitterDefault";
 
 export { HttpRequestError } from "./error/HttpRequestError";
 export { ValidError } from "./error/ValidError";
