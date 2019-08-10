@@ -12,5 +12,5 @@ export enum EmitterEnum {
     AUTO_CONFIGURATION = "autoConfiguration",
     LOAD_TASK_APOLLO = "loadTaskApollo",
     LISTEN = "listen",
-
+    MIDDLEWARE = "middleware",
 }
