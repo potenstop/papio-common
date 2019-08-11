@@ -17,7 +17,7 @@ import {
     JsonProperty,
     RequestBody,
 } from "../../../../src/PapioCommon";
-import { Body} from "../../model/Body"
+import { Body} from "../../model/Body";
 import {PostMapping} from "../../../../src/annotation/mapping/PostMapping";
 class Standard<T> {
     @Property
@@ -27,7 +27,7 @@ class Standard<T> {
     @Property
     public data: T;
     constructor() {
-        this.code = '0';
+        this.code = "0";
         this.message = "suc";
     }
 }
